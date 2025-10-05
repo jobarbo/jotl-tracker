@@ -1,54 +1,5 @@
 [
   {
-    "id": "9afbf140-e832-4b6e-a772-04ba5a1ae786",
-    "name": "the dragons dens",
-    "description": "",
-    "groupName": "La gang",
-    "prosperity": 1,
-    "reputation": 0,
-    "notes": "",
-    "createdAt": "2025-10-04T17:32:20.540Z",
-    "updatedAt": "2025-10-05T02:26:21.171Z",
-    "scenarios": [
-      {
-        "id": "scenario-1",
-        "number": 1,
-        "name": "Scenario 1",
-        "description": "Description for scenario 1",
-        "requirements": [],
-        "rewards": [],
-        "completed": false,
-        "notes": ""
-      },
-      {
-        "id": "scenario-2",
-        "number": 2,
-        "name": "Scenario 2",
-        "description": "Description for scenario 2",
-        "requirements": [],
-        "rewards": [],
-        "completed": false,
-        "notes": ""
-      },
-      {
-        "id": "scenario-3",
-        "number": 3,
-        "name": "Scenario 3",
-        "description": "Description for scenario 3",
-        "requirements": [],
-        "rewards": [],
-        "completed": false,
-        "notes": ""
-      }
-    ],
-    "partyGold": 0,
-    "checkmarks": 0,
-    "completedScenarios": [
-      14,
-      17
-    ]
-  },
-  {
     "id": "ad8ed9dd-b3df-4398-a7fe-4ddd0eb7f245",
     "name": "Barbeau",
     "description": "",
@@ -57,7 +8,7 @@
     "reputation": 0,
     "notes": "",
     "createdAt": "2025-10-05T01:46:33.495Z",
-    "updatedAt": "2025-10-05T02:33:01.165Z",
+    "updatedAt": "2025-10-05T02:37:45.847Z",
     "scenarios": [
       {
         "id": "4a648bcb-334e-4566-9e8c-5d4983436a98",
@@ -121,8 +72,9 @@
         "description": "Description for scenario 6",
         "requirements": [],
         "rewards": [],
-        "completed": false,
-        "notes": ""
+        "completed": true,
+        "notes": "",
+        "completedAt": "2025-10-05T02:37:45.847Z"
       },
       {
         "id": "5a0b45ea-ea3d-485d-b3b9-c1ef205a55a0",

@@ -1,26 +1,5 @@
 [
   {
-    "id": "8cbdc0ee-6e17-439f-b3c5-c6a0c70b9802",
-    "campaignId": "9afbf140-e832-4b6e-a772-04ba5a1ae786",
-    "name": "Thorne lala",
-    "class": {
-      "id": "hatchet",
-      "name": "Hatchet",
-      "symbol": "🎯",
-      "color": "#8B4513",
-      "maxLevel": 9
-    },
-    "level": 1,
-    "experience": 0,
-    "gold": 30,
-    "checkmarks": 0,
-    "perks": [],
-    "items": [],
-    "notes": "",
-    "createdAt": "2025-10-04T17:32:20.545Z",
-    "updatedAt": "2025-10-05T02:24:03.365Z"
-  },
-  {
     "id": "5c60bc22-af79-4957-9edf-27e07bd3629b",
     "campaignId": "ad8ed9dd-b3df-4398-a7fe-4ddd0eb7f245",
     "name": "Thorne",
