@@ -1,0 +1,164 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import CampaignCard from "../../components/CampaignCard.astro";
+import Button from "../../components/Button.astro";
+import EmptyState from "../../components/EmptyState.astro";
+
+// For now, we'll show empty state since we need client-side data loading
+// In a real app, this would be handled by the client-side script
+const campaigns: any[] = [];
+---
+
+<Layout title='Campaigns - Gloomhaven Tracker'>
+	<div class='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+		<!-- Header -->
+		<div class='flex justify-between items-center mb-8'>
+			<div>
+				<h1 class='text-3xl font-bold text-white'>Campaigns</h1>
+				<p class='text-gray-400 mt-2'>Manage your Gloomhaven adventures</p>
+			</div>
+			<Button href='/campaigns/new' variant='primary'> New Campaign </Button>
+		</div>
+
+		<!-- Empty State (shown by default) -->
+		<div id='empty-state' class='text-center py-16'>
+			<div class='w-20 h-20 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6'>
+				<span class='text-3xl'>🎲</span>
+			</div>
+			<h2 class='text-2xl font-semibold text-gray-300 mb-4'>No campaigns yet</h2>
+			<p class='text-gray-400 mb-8 max-w-md mx-auto'>Start tracking your Gloomhaven: Jaws of the Lion adventures by creating your first campaign.</p>
+			<a href='/campaigns/new' class='bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200'>
+				Create Your First Campaign
+			</a>
+		</div>
+
+		<!-- Campaigns Grid (hidden by default) -->
+		<div id='campaigns-container' class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' style='display: none;'></div>
+	</div>
+
+	<script>
+		import {ClientCampaignManager} from "../../utils/clientCampaignManager.js";
+
+		// Load campaigns on page load
+		document.addEventListener("DOMContentLoaded", () => {
+			loadCampaigns();
+		});
+
+		async function loadCampaigns() {
+			try {
+				console.log("Loading campaigns...");
+				const campaigns = await ClientCampaignManager.getAllCampaigns();
+				console.log("Loaded campaigns:", campaigns);
+
+				const emptyState = document.getElementById("empty-state");
+				const campaignsContainer = document.getElementById("campaigns-container");
+
+				if (campaigns.length > 0) {
+					console.log(`Found ${campaigns.length} campaigns, showing them`);
+					// Hide empty state and show campaigns
+					if (emptyState) emptyState.style.display = "none";
+					if (campaignsContainer) {
+						campaignsContainer.style.display = "grid";
+						displayCampaigns(campaigns);
+					}
+				} else {
+					console.log("No campaigns found, showing empty state");
+					// Show empty state and hide campaigns
+					if (emptyState) emptyState.style.display = "block";
+					if (campaignsContainer) campaignsContainer.style.display = "none";
+				}
+			} catch (error) {
+				console.error("Failed to load campaigns:", error);
+				// Show empty state on error
+				const emptyState = document.getElementById("empty-state");
+				const campaignsContainer = document.getElementById("campaigns-container");
+				if (emptyState) emptyState.style.display = "block";
+				if (campaignsContainer) campaignsContainer.style.display = "none";
+			}
+		}
+
+		function displayCampaigns(campaigns: any[]) {
+			const campaignsContainer = document.getElementById("campaigns-container");
+			if (!campaignsContainer) return;
+
+			// Clear existing content
+			campaignsContainer.innerHTML = "";
+
+			// Create campaign cards
+			campaigns.forEach((campaign) => {
+				const campaignCard = document.createElement("div");
+				campaignCard.className = "bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-200 hover:shadow-lg";
+
+				const completedScenarios = campaign.scenarios.filter((s: any) => s.completed).length;
+				const totalScenarios = campaign.scenarios.length;
+				const progressPercentage = totalScenarios > 0 ? Math.round((completedScenarios / totalScenarios) * 100) : 0;
+
+				campaignCard.innerHTML = `
+          <div class="p-6 border-b border-gray-700">
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-xl font-semibold text-white">${campaign.name}</h3>
+              <span class="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded">
+                ${campaign.groupName}
+              </span>
+            </div>
+            <p class="text-gray-400 text-sm">
+              Created ${new Date(campaign.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+
+          <div class="p-6">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div class="text-center">
+                <div class="text-2xl font-bold text-white">${campaign.characters.length}</div>
+                <div class="text-sm text-gray-400">Characters</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-white">
+                  ${completedScenarios}/${totalScenarios}
+                </div>
+                <div class="text-sm text-gray-400">Scenarios</div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <div class="flex justify-between text-sm text-gray-400 mb-1">
+                <span>Progress</span>
+                <span>${progressPercentage}%</span>
+              </div>
+              <div class="w-full bg-gray-700 rounded-full h-2">
+                <div
+                  class="bg-gradient-to-r from-purple-600 to-blue-600 h-2 rounded-full transition-all duration-300"
+                  style="width: ${progressPercentage}%"
+                ></div>
+              </div>
+            </div>
+
+            <div class="text-sm text-gray-400 mb-4">
+              <span class="font-medium">Last played:</span>
+              <span class="ml-1">
+                ${campaign.updatedAt ? new Date(campaign.updatedAt).toLocaleDateString() : "Never"}
+              </span>
+            </div>
+
+            <div class="flex space-x-2">
+              <a
+                href="/campaigns/${campaign.id}"
+                class="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-center py-2 px-3 rounded text-sm font-medium transition-colors"
+              >
+                View Details
+              </a>
+              <a
+                href="/campaigns/${campaign.id}/edit"
+                class="flex-1 bg-gray-600 hover:bg-gray-500 text-white text-center py-2 px-3 rounded text-sm font-medium transition-colors"
+              >
+                Edit
+              </a>
+            </div>
+          </div>
+        `;
+
+				campaignsContainer.appendChild(campaignCard);
+			});
+		}
+	</script>
+</Layout>

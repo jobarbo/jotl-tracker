@@ -1,0 +1,77 @@
+---
+
+---
+
+<div class='bg-gray-800 rounded-lg p-6 border border-gray-700'>
+	<h3 class='text-lg font-semibold text-white mb-4'>Data Management</h3>
+	<p class='text-gray-400 text-sm mb-4'>Export your campaign data for backup or sharing. Data is stored in JSON files in the `src/data/` directory.</p>
+
+	<div class='flex flex-wrap gap-2'>
+		<button
+			type='button'
+			onclick="exportData('full')"
+			class='bg-gray-700 hover:bg-gray-600 text-white focus:ring-gray-500 py-1 px-3 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900'>
+			📁 Export All Data
+		</button>
+
+		<button
+			type='button'
+			onclick="exportData('campaigns')"
+			class='bg-gray-700 hover:bg-gray-600 text-white focus:ring-gray-500 py-1 px-3 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900'>
+			📚 Export Campaigns
+		</button>
+
+		<button
+			type='button'
+			onclick="exportData('characters')"
+			class='bg-gray-700 hover:bg-gray-600 text-white focus:ring-gray-500 py-1 px-3 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900'>
+			👥 Export Characters
+		</button>
+	</div>
+
+	<div class='mt-4 p-3 bg-gray-700 rounded text-xs text-gray-300'>
+		<strong>💡 Data Storage:</strong> Your data is automatically saved to JSON files in the `src/data/` directory. These files persist between sessions and can be backed up, shared, or version controlled
+		with git.
+	</div>
+</div>
+
+<script>
+	async function exportData(type: "campaigns" | "characters" | "full") {
+		try {
+			const response = await fetch(`/api/export?type=${type}`);
+			if (!response.ok) {
+				throw new Error("Failed to export data");
+			}
+
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+
+			const timestamp = new Date().toISOString().split("T")[0];
+			a.download = `gloomhaven-export-${type}-${timestamp}.json`;
+
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			window.URL.revokeObjectURL(url);
+
+			// Show success message
+			const button = event?.target as HTMLElement;
+			const originalText = button.textContent;
+			button.textContent = "✅ Exported!";
+			button.style.backgroundColor = "#10B981";
+
+			setTimeout(() => {
+				button.textContent = originalText;
+				button.style.backgroundColor = "";
+			}, 2000);
+		} catch (error) {
+			console.error("Export failed:", error);
+			alert("Failed to export data. Please try again.");
+		}
+	}
+
+	// Make function globally available
+	(window as any).exportData = exportData;
+</script>

@@ -1,0 +1,204 @@
+---
+import Layout from "../layouts/Layout.astro";
+import {CHARACTER_CLASSES} from "../types/index";
+---
+
+<Layout title='Edit Character - Gloomhaven Tracker'>
+	<div class='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+		<!-- Header -->
+		<div class='mb-8'>
+			<h1 class='text-3xl font-bold text-white'>Edit Character</h1>
+			<p class='text-gray-400 mt-2'>Update your character's progress and equipment</p>
+		</div>
+
+		<!-- Edit Form -->
+		<form id='edit-character-form' class='space-y-8'>
+			<!-- Character Basic Info -->
+			<div class='bg-gray-800 rounded-lg p-6 border border-gray-700'>
+				<h2 class='text-xl font-semibold text-white mb-4'>Character Information</h2>
+
+				<div class='grid grid-cols-1 md:grid-cols-2 gap-6'>
+					<div>
+						<label for='character-name' class='block text-sm font-medium text-gray-300 mb-2'> Character Name * </label>
+						<input
+							type='text'
+							id='character-name'
+							name='name'
+							required
+							class='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+							placeholder='e.g., Thorne'
+						/>
+					</div>
+
+					<div>
+						<label for='character-class' class='block text-sm font-medium text-gray-300 mb-2'> Class * </label>
+						<select
+							id='character-class'
+							name='class'
+							required
+							class='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'>
+							<option value=''>Select a class</option>
+							<option value='hatchet'>🎯 Hatchet</option>
+							<option value='red-guard'>🛡️ Red Guard</option>
+							<option value='voidwarden'>🔮 Voidwarden</option>
+							<option value='demolitionist'>💥 Demolitionist</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<!-- Character Stats -->
+			<div class='bg-gray-800 rounded-lg p-6 border border-gray-700'>
+				<h2 class='text-xl font-semibold text-white mb-4'>Character Stats</h2>
+
+				<div class='grid grid-cols-2 md:grid-cols-4 gap-6'>
+					<div>
+						<label for='level' class='block text-sm font-medium text-gray-300 mb-2'>🎯 Level</label>
+						<input
+							type='number'
+							id='level'
+							name='level'
+							min='1'
+							max='9'
+							class='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+						/>
+					</div>
+
+					<div>
+						<label for='experience' class='block text-sm font-medium text-gray-300 mb-2'>⭐ Experience</label>
+						<input
+							type='number'
+							id='experience'
+							name='experience'
+							min='0'
+							class='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+						/>
+					</div>
+
+					<div>
+						<label for='gold' class='block text-sm font-medium text-gray-300 mb-2'>💰 Gold</label>
+						<input
+							type='number'
+							id='gold'
+							name='gold'
+							min='0'
+							class='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+						/>
+					</div>
+
+					<div>
+						<label for='checkmarks' class='block text-sm font-medium text-gray-300 mb-2'>✅ Checkmarks</label>
+						<input
+							type='number'
+							id='checkmarks'
+							name='checkmarks'
+							min='0'
+							class='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+						/>
+					</div>
+				</div>
+			</div>
+
+			<!-- Character Notes -->
+			<div class='bg-gray-800 rounded-lg p-6 border border-gray-700'>
+				<h2 class='text-xl font-semibold text-white mb-4'>Character Notes</h2>
+
+				<div>
+					<label for='notes' class='block text-sm font-medium text-gray-300 mb-2'>📝 Personal Notes</label>
+					<textarea
+						id='notes'
+						name='notes'
+						rows='4'
+						class='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+						placeholder='Personal quest progress, character backstory, important decisions, or other notes...'></textarea>
+				</div>
+			</div>
+
+			<!-- Actions -->
+			<div class='flex justify-between space-x-4'>
+				<a href='/characters' class='bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-6 rounded-lg transition-colors'> ← Back to Characters </a>
+				<button type='submit' class='bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200'>
+					Save Changes
+				</button>
+			</div>
+		</form>
+	</div>
+
+	<script define:vars={{CHARACTER_CLASSES}}>
+		// Get character ID from URL parameters
+		const urlParams = new URLSearchParams(window.location.search);
+		const characterId = urlParams.get("id");
+		const campaignId = urlParams.get("campaignId");
+
+		console.log("Character edit page loaded for character:", characterId, "in campaign:", campaignId);
+
+		if (!characterId) {
+			alert("No character ID provided");
+			window.location.href = "/characters";
+			return;
+		}
+
+		document.addEventListener("DOMContentLoaded", async () => {
+			try {
+				// Load character data
+				const response = await fetch(`/api/characters/${characterId}`);
+				if (!response.ok) {
+					console.error("Failed to load character");
+					alert("Failed to load character data");
+					return;
+				}
+
+				const character = await response.json();
+				console.log("Loaded character:", character);
+
+				// Populate form
+				document.getElementById("character-name").value = character.name || "";
+				document.getElementById("character-class").value = character.class?.id || "";
+				document.getElementById("level").value = character.level || 1;
+				document.getElementById("experience").value = character.experience || 0;
+				document.getElementById("gold").value = character.gold || 0;
+				document.getElementById("checkmarks").value = character.checkmarks || 0;
+				document.getElementById("notes").value = character.notes || "";
+			} catch (error) {
+				console.error("Error loading character:", error);
+				alert("Error loading character data");
+			}
+		});
+
+		// Handle form submission
+		document.getElementById("edit-character-form").addEventListener("submit", async (e) => {
+			e.preventDefault();
+
+			const formData = new FormData(e.target);
+			const updates = {
+				name: formData.get("name"),
+				class: CHARACTER_CLASSES.find((cls) => cls.id === formData.get("class")),
+				level: parseInt(formData.get("level")),
+				experience: parseInt(formData.get("experience")),
+				gold: parseInt(formData.get("gold")),
+				checkmarks: parseInt(formData.get("checkmarks")),
+				notes: formData.get("notes"),
+			};
+
+			try {
+				const response = await fetch(`/api/characters/${characterId}`, {
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(updates),
+				});
+
+				if (response.ok) {
+					alert("Character updated successfully!");
+					window.location.href = "/characters";
+				} else {
+					alert("Failed to update character. Please try again.");
+				}
+			} catch (error) {
+				console.error("Error updating character:", error);
+				alert("Failed to update character. Please try again.");
+			}
+		});
+	</script>
+</Layout>

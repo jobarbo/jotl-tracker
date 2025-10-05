@@ -1,0 +1,88 @@
+[
+  {
+    "id": "8cbdc0ee-6e17-439f-b3c5-c6a0c70b9802",
+    "campaignId": "9afbf140-e832-4b6e-a772-04ba5a1ae786",
+    "name": "Thorne lala",
+    "class": {
+      "id": "hatchet",
+      "name": "Hatchet",
+      "symbol": "🎯",
+      "color": "#8B4513",
+      "maxLevel": 9
+    },
+    "level": 1,
+    "experience": 0,
+    "gold": 30,
+    "checkmarks": 0,
+    "perks": [],
+    "items": [],
+    "notes": "",
+    "createdAt": "2025-10-04T17:32:20.545Z",
+    "updatedAt": "2025-10-05T02:24:03.365Z"
+  },
+  {
+    "id": "5c60bc22-af79-4957-9edf-27e07bd3629b",
+    "campaignId": "ad8ed9dd-b3df-4398-a7fe-4ddd0eb7f245",
+    "name": "Thorne",
+    "class": {
+      "id": "red-guard",
+      "name": "Red Guard",
+      "symbol": "🛡️",
+      "color": "#DC143C",
+      "maxLevel": 9
+    },
+    "level": 1,
+    "experience": 0,
+    "gold": 30,
+    "checkmarks": 0,
+    "perks": [],
+    "items": [],
+    "notes": "",
+    "createdAt": "2025-10-05T01:46:33.499Z",
+    "updatedAt": "2025-10-05T01:46:33.499Z"
+  },
+  {
+    "id": "c2920ef3-9e9b-4cf2-95ad-169a42f7b7bc",
+    "name": "Test Character",
+    "class": {
+      "id": "voidwarden",
+      "name": "Voidwarden",
+      "symbol": "🔮",
+      "color": "#4B0082",
+      "maxLevel": 9
+    },
+    "level": 1,
+    "experience": 21,
+    "gold": 12,
+    "checkmarks": 0,
+    "perks": [],
+    "items": [],
+    "equipment": {},
+    "abilities": "",
+    "notes": "Test character for independent system",
+    "createdAt": "2025-10-05T02:10:15.545Z",
+    "updatedAt": "2025-10-05T02:16:30.854Z"
+  },
+  {
+    "id": "29631637-a1f6-4ec7-b5c8-4b4a732a5d4b",
+    "name": "Jonathan Barbeau",
+    "class": {
+      "id": "red-guard",
+      "name": "Red Guard",
+      "symbol": "🛡️",
+      "color": "#DC143C",
+      "maxLevel": 9
+    },
+    "level": 1,
+    "experience": 0,
+    "gold": 34,
+    "checkmarks": 0,
+    "perks": [],
+    "items": [],
+    "equipment": {},
+    "abilities": "",
+    "notes": "",
+    "createdAt": "2025-10-05T02:14:44.863Z",
+    "updatedAt": "2025-10-05T02:16:13.050Z"
+  }
+]

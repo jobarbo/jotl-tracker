@@ -1,0 +1,250 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import {CHARACTER_CLASSES} from "../../types/index.js";
+---
+
+<Layout title='New Campaign - Gloomhaven Tracker'>
+	<div class='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+		<!-- Header -->
+		<div class='mb-8'>
+			<h1 class='text-3xl font-bold text-white'>Create New Campaign</h1>
+			<p class='text-gray-400 mt-2'>Start tracking a new Gloomhaven: Jaws of the Lion adventure</p>
+		</div>
+
+		<form id='new-campaign-form' class='space-y-8'>
+			<!-- Campaign Details -->
+			<div class='bg-gray-800 rounded-lg p-6 border border-gray-700'>
+				<h2 class='text-xl font-semibold text-white mb-4'>Campaign Details</h2>
+
+				<div class='grid grid-cols-1 md:grid-cols-2 gap-6'>
+					<div>
+						<label for='campaign-name' class='block text-sm font-medium text-gray-300 mb-2'> Campaign Name * </label>
+						<input
+							type='text'
+							id='campaign-name'
+							name='name'
+							required
+							class='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+							placeholder="e.g., The Dragon's Den"
+						/>
+					</div>
+
+					<div>
+						<label for='group-name' class='block text-sm font-medium text-gray-300 mb-2'> Group Name * </label>
+						<input
+							type='text'
+							id='group-name'
+							name='groupName'
+							required
+							class='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+							placeholder='e.g., The Adventurers'
+						/>
+					</div>
+				</div>
+
+				<div class='mt-6'>
+					<label for='description' class='block text-sm font-medium text-gray-300 mb-2'> Description </label>
+					<textarea
+						id='description'
+						name='description'
+						rows='3'
+						class='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+						placeholder='Optional description of your campaign...'></textarea>
+				</div>
+			</div>
+
+			<!-- Initial Characters -->
+			<div class='bg-gray-800 rounded-lg p-6 border border-gray-700'>
+				<h2 class='text-xl font-semibold text-white mb-4'>Initial Characters</h2>
+				<p class='text-gray-400 mb-6'>Add the characters that will start this campaign. You can add more later.</p>
+
+				<div id='characters-container' class='space-y-4'>
+					<!-- Character template will be added here -->
+				</div>
+
+				<button type='button' id='add-character-btn' class='mt-4 bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors'> + Add Character </button>
+			</div>
+
+			<!-- Campaign Settings -->
+			<div class='bg-gray-800 rounded-lg p-6 border border-gray-700'>
+				<h2 class='text-xl font-semibold text-white mb-4'>Campaign Settings</h2>
+
+				<div class='grid grid-cols-1 md:grid-cols-2 gap-6'>
+					<div>
+						<label for='prosperity' class='block text-sm font-medium text-gray-300 mb-2'> Starting Prosperity </label>
+						<select
+							id='prosperity'
+							name='prosperity'
+							class='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'>
+							<option value='1'>1</option>
+							<option value='2'>2</option>
+							<option value='3'>3</option>
+							<option value='4'>4</option>
+							<option value='5'>5</option>
+						</select>
+					</div>
+
+					<div>
+						<label for='reputation' class='block text-sm font-medium text-gray-300 mb-2'> Starting Reputation </label>
+						<input
+							type='number'
+							id='reputation'
+							name='reputation'
+							value='0'
+							min='-20'
+							max='20'
+							class='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+						/>
+					</div>
+				</div>
+			</div>
+
+			<!-- Actions -->
+			<div class='flex justify-end space-x-4'>
+				<a href='/campaigns' class='bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-6 rounded-lg transition-colors'> Cancel </a>
+				<button type='submit' class='bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200'>
+					Create Campaign
+				</button>
+			</div>
+		</form>
+	</div>
+
+	<script>
+		// Import the client campaign manager
+		import {ClientCampaignManager} from "../../utils/clientCampaignManager.js";
+
+		const CHARACTER_CLASSES = [
+			{id: "hatchet", name: "Hatchet", symbol: "🎯", color: "#8B4513", maxLevel: 9},
+			{id: "red-guard", name: "Red Guard", symbol: "🛡️", color: "#DC143C", maxLevel: 9},
+			{id: "voidwarden", name: "Voidwarden", symbol: "🔮", color: "#4B0082", maxLevel: 9},
+			{id: "demolitionist", name: "Demolitionist", symbol: "💥", color: "#FF8C00", maxLevel: 9},
+		];
+
+		let characterCount = 0;
+
+		function createCharacterForm() {
+			const container = document.getElementById("characters-container");
+			if (!container) return;
+
+			const characterDiv = document.createElement("div");
+			characterDiv.className = "bg-gray-700 rounded-lg p-4 border border-gray-600";
+			characterDiv.innerHTML = `
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-white">Character ${characterCount + 1}</h3>
+          <button type="button" class="text-red-400 hover:text-red-300 remove-character-btn">
+            Remove
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Character Name *</label>
+            <input
+              type="text"
+              name="characters[${characterCount}].name"
+              required
+              class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="e.g., Thorne"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Class *</label>
+            <select
+              name="characters[${characterCount}].class"
+              required
+              class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="">Select a class</option>
+              ${CHARACTER_CLASSES.map((cls) => `<option value="${cls.id}">${cls.symbol} ${cls.name}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+      `;
+
+			container.appendChild(characterDiv);
+			characterCount++;
+
+			// Add remove functionality
+			const removeBtn = characterDiv.querySelector(".remove-character-btn") as HTMLButtonElement;
+			if (removeBtn) {
+				removeBtn.addEventListener("click", () => {
+					characterDiv.remove();
+				});
+			}
+		}
+
+		// Add character button
+		const addCharacterBtn = document.getElementById("add-character-btn");
+		if (addCharacterBtn) {
+			addCharacterBtn.addEventListener("click", createCharacterForm);
+		}
+
+		// Form submission
+		const form = document.getElementById("new-campaign-form") as HTMLFormElement;
+		if (form) {
+			form.addEventListener("submit", async (e) => {
+				e.preventDefault();
+
+				const formData = new FormData(e.target as HTMLFormElement);
+				const campaignData = {
+					name: formData.get("name") as string,
+					groupName: formData.get("groupName") as string,
+					description: formData.get("description") as string,
+					prosperity: parseInt(formData.get("prosperity") as string),
+					reputation: parseInt(formData.get("reputation") as string),
+					characters: [] as any[],
+				};
+
+				// Collect character data
+				const characterInputs = document.querySelectorAll('[name^="characters["]');
+				for (let i = 0; i < characterInputs.length; i += 2) {
+					const nameInput = characterInputs[i] as HTMLInputElement;
+					const classSelect = characterInputs[i + 1] as HTMLSelectElement;
+
+					if (nameInput && classSelect && nameInput.value && classSelect.value) {
+						const selectedClass = CHARACTER_CLASSES.find((cls) => cls.id === classSelect.value);
+						campaignData.characters.push({
+							name: nameInput.value,
+							class: selectedClass,
+							level: 1,
+							experience: 0,
+							gold: 30, // Starting gold
+							checkmarks: 0,
+							perks: [],
+							items: [],
+							notes: "",
+						});
+					}
+				}
+
+				try {
+					// Create the campaign using the client manager
+					const newCampaign = await ClientCampaignManager.createCampaign({
+						name: campaignData.name,
+						description: campaignData.description,
+						groupName: campaignData.groupName,
+						characters: campaignData.characters,
+						prosperity: campaignData.prosperity,
+						reputation: campaignData.reputation,
+						notes: "",
+					});
+
+					console.log("Campaign created successfully:", newCampaign);
+
+					// Show success message
+					alert(`Campaign "${newCampaign.name}" created successfully!`);
+
+					// Redirect to campaigns list
+					window.location.href = "/campaigns";
+				} catch (error) {
+					console.error("Error creating campaign:", error);
+					alert("Failed to create campaign. Please try again.");
+				}
+			});
+		}
+
+		// Add initial character form
+		createCharacterForm();
+	</script>
+</Layout>

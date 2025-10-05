@@ -1,0 +1,35 @@
+---
+import Card from "./Card.astro";
+
+export interface Props {
+	icon: string;
+	label: string;
+	value: string | number;
+	color?: "blue" | "green" | "purple" | "yellow" | "red";
+	class?: string;
+}
+
+const {icon, label, value, color = "blue", class: className = ""} = Astro.props;
+
+const colorClasses = {
+	blue: "bg-blue-600",
+	green: "bg-green-600",
+	purple: "bg-purple-600",
+	yellow: "bg-yellow-600",
+	red: "bg-red-600",
+};
+---
+
+<Card class={className}>
+	<div class='flex items-center'>
+		<div class='flex-shrink-0'>
+			<div class={`w-8 h-8 ${colorClasses[color]} rounded-lg flex items-center justify-center`}>
+				<span class='text-white font-bold text-lg'>{icon}</span>
+			</div>
+		</div>
+		<div class='ml-4'>
+			<p class='text-sm font-medium text-gray-400'>{label}</p>
+			<p class='text-2xl font-semibold text-white'>{value}</p>
+		</div>
+	</div>
+</Card>

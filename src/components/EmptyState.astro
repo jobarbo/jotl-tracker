@@ -1,0 +1,33 @@
+---
+import Button from "./Button.astro";
+
+export interface Props {
+	icon?: string;
+	title: string;
+	description?: string;
+	actionText?: string;
+	actionHref?: string;
+	actionVariant?: "primary" | "secondary" | "danger" | "ghost";
+	class?: string;
+}
+
+const {icon = "🎲", title, description, actionText, actionHref, actionVariant = "primary", class: className = ""} = Astro.props;
+---
+
+<div class={`text-center py-16 ${className}`}>
+	<div class='w-20 h-20 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6'>
+		<span class='text-3xl'>{icon}</span>
+	</div>
+
+	<h2 class='text-2xl font-semibold text-gray-300 mb-4'>{title}</h2>
+
+	{description && <p class='text-gray-400 mb-8 max-w-md mx-auto'>{description}</p>}
+
+	{
+		actionText && actionHref && (
+			<Button href={actionHref} variant={actionVariant} size='lg'>
+				{actionText}
+			</Button>
+		)
+	}
+</div>

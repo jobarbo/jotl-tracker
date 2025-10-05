@@ -1,0 +1,190 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const {id} = Astro.params;
+---
+
+<Layout title='Campaign - Gloomhaven Tracker'>
+	<div class='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+		<!-- Loading State -->
+		<div id='loading-state' class='text-center py-12'>
+			<div class='text-white text-lg'>Loading campaign...</div>
+		</div>
+
+		<!-- Campaign Content -->
+		<div id='campaign-content' class='hidden'>
+			<!-- Campaign Header -->
+			<div class='bg-gray-800 rounded-lg p-6 border border-gray-700 mb-8'>
+				<div class='flex justify-between items-start mb-4'>
+					<div>
+						<h1 id='campaign-name' class='text-3xl font-bold text-white'></h1>
+						<p id='campaign-group' class='text-gray-400 mt-2'></p>
+						<p id='campaign-description' class='text-gray-300 mt-2'></p>
+					</div>
+					<div class='flex space-x-2'>
+						<a id='edit-campaign-link' href='#' class='bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors'> Edit Campaign </a>
+					</div>
+				</div>
+
+				<!-- Campaign Stats -->
+				<div class='grid grid-cols-2 md:grid-cols-4 gap-4'>
+					<div class='text-center'>
+						<div id='character-count' class='text-2xl font-bold text-white'>0</div>
+						<div class='text-sm text-gray-400'>Characters</div>
+					</div>
+					<div class='text-center'>
+						<div id='scenario-progress' class='text-2xl font-bold text-white'>0/0</div>
+						<div class='text-sm text-gray-400'>Scenarios</div>
+					</div>
+					<div class='text-center'>
+						<div id='prosperity' class='text-2xl font-bold text-white'>1</div>
+						<div class='text-sm text-gray-400'>Prosperity</div>
+					</div>
+					<div class='text-center'>
+						<div id='reputation' class='text-2xl font-bold text-white'>0</div>
+						<div class='text-sm text-gray-400'>Reputation</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Characters Section -->
+			<div class='bg-gray-800 rounded-lg p-6 border border-gray-700 mb-8'>
+				<div class='flex justify-between items-center mb-6'>
+					<h2 class='text-xl font-semibold text-white'>Characters</h2>
+					<a
+						href='/characters/new'
+						class='bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200'>
+						+ Add Character
+					</a>
+				</div>
+
+				<div id='characters-container'>
+					<!-- Characters will be loaded here -->
+				</div>
+			</div>
+
+			<!-- Scenarios Section -->
+			<div class='bg-gray-800 rounded-lg p-6 border border-gray-700'>
+				<div class='flex justify-between items-center mb-6'>
+					<h2 class='text-xl font-semibold text-white'>Scenarios</h2>
+				</div>
+
+				<div id='scenarios-container'>
+					<!-- Scenarios will be loaded here -->
+				</div>
+			</div>
+		</div>
+
+		<!-- Error State -->
+		<div id='error-state' class='hidden text-center py-12'>
+			<div class='text-red-400 text-lg'>Failed to load campaign</div>
+			<a href='/campaigns' class='text-purple-400 hover:text-purple-300 mt-4 inline-block'>← Back to Campaigns</a>
+		</div>
+	</div>
+
+	<script define:vars={{campaignId: id}}>
+		async function loadCampaign() {
+			try {
+				const response = await fetch(`/api/campaigns/${campaignId}`);
+				if (!response.ok) {
+					throw new Error("Failed to load campaign");
+				}
+
+				const campaign = await response.json();
+
+				// Update page title
+				document.title = `${campaign.name} - Gloomhaven Tracker`;
+
+				// Update header
+				document.getElementById("campaign-name").textContent = campaign.name;
+				document.getElementById("campaign-group").textContent = campaign.groupName;
+				if (campaign.description) {
+					document.getElementById("campaign-description").textContent = campaign.description;
+				}
+				document.getElementById("edit-campaign-link").href = `/campaigns/${campaign.id}/edit`;
+
+				// Update stats
+				document.getElementById("character-count").textContent = campaign.characters.length;
+				const completedScenarios = campaign.scenarios.filter((s) => s.completed).length;
+				document.getElementById("scenario-progress").textContent = `${completedScenarios}/${campaign.scenarios.length}`;
+				document.getElementById("prosperity").textContent = campaign.prosperity;
+				document.getElementById("reputation").textContent = campaign.reputation;
+
+				// Load characters
+				const charactersContainer = document.getElementById("characters-container");
+				if (campaign.characters.length === 0) {
+					charactersContainer.innerHTML = `
+						<div class="text-center py-8 text-gray-400">
+							<p>No characters yet. <a href="/characters/new" class="text-purple-400 hover:text-purple-300">Create your first character</a></p>
+						</div>
+					`;
+				} else {
+					charactersContainer.innerHTML = campaign.characters
+						.map(
+							(character) => `
+						<div class='bg-gray-700 rounded-lg p-4 border border-gray-600 mb-4'>
+							<div class='flex justify-between items-start mb-3'>
+								<div>
+									<h3 class='text-lg font-medium text-white'>${character.name}</h3>
+									<p class='text-sm text-gray-400'>
+										${character.class.symbol} ${character.class.name} - Level ${character.level}
+									</p>
+								</div>
+								<div class='text-right text-sm text-gray-400'>
+									<div>${character.experience} XP</div>
+									<div>${character.gold} Gold</div>
+								</div>
+							</div>
+
+							<div class='flex justify-between items-center'>
+								<div class='flex space-x-4 text-sm text-gray-400'>
+									<span>${character.checkmarks} Checkmarks</span>
+									<span>${Array.isArray(character.perks) ? character.perks.length : 0} Perks</span>
+									<span>${Array.isArray(character.items) ? character.items.length : 0} Items</span>
+								</div>
+								<a href='/character-edit?id=${character.id}&campaignId=${campaign.id}' class='text-purple-400 hover:text-purple-300 text-sm font-medium'>
+									Edit Character
+								</a>
+							</div>
+						</div>
+					`
+						)
+						.join("");
+				}
+
+				// Load scenarios
+				const scenariosContainer = document.getElementById("scenarios-container");
+				scenariosContainer.innerHTML = campaign.scenarios
+					.map(
+						(scenario) => `
+					<div class='bg-gray-700 rounded-lg p-4 border border-gray-600 mb-3'>
+						<div class='flex justify-between items-center'>
+							<div>
+								<h3 class='text-lg font-medium text-white'>Scenario ${scenario.number}: ${scenario.name}</h3>
+								<p class='text-sm text-gray-400'>${scenario.description}</p>
+							</div>
+							<div class='text-right'>
+								<span class='px-3 py-1 rounded-full text-xs font-medium ${scenario.completed ? "bg-green-600 text-white" : "bg-gray-600 text-gray-300"}'>
+									${scenario.completed ? "Completed" : "Not Started"}
+								</span>
+							</div>
+						</div>
+					</div>
+				`
+					)
+					.join("");
+
+				// Show content
+				document.getElementById("loading-state").classList.add("hidden");
+				document.getElementById("campaign-content").classList.remove("hidden");
+			} catch (error) {
+				console.error("Error loading campaign:", error);
+				document.getElementById("loading-state").classList.add("hidden");
+				document.getElementById("error-state").classList.remove("hidden");
+			}
+		}
+
+		// Load campaign when page loads
+		loadCampaign();
+	</script>
+</Layout>

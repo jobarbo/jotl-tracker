@@ -1,0 +1,39 @@
+---
+export interface Props {
+	value: number;
+	max?: number;
+	showPercentage?: boolean;
+	showLabel?: boolean;
+	label?: string;
+	class?: string;
+	size?: "sm" | "md" | "lg";
+}
+
+const {value, max = 100, showPercentage = false, showLabel = false, label = "Progress", class: className = "", size = "md"} = Astro.props;
+
+const percentage = Math.round((value / max) * 100);
+const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
+
+const sizeClasses = {
+	sm: "h-1",
+	md: "h-2",
+	lg: "h-3",
+};
+
+const classes = `${sizeClasses[size]} ${className}`.trim();
+---
+
+<div class={`w-full ${className}`}>
+	{
+		(showLabel || showPercentage) && (
+			<div class='flex justify-between text-sm text-gray-400 mb-1'>
+				{showLabel && <span>{label}</span>}
+				{showPercentage && <span>{clampedPercentage}%</span>}
+			</div>
+		)
+	}
+
+	<div class={`w-full bg-gray-700 rounded-full ${sizeClasses[size]}`}>
+		<div class={`bg-gradient-to-r from-purple-600 to-blue-600 rounded-full transition-all duration-300 ${sizeClasses[size]}`} style={`width: ${clampedPercentage}%`}></div>
+	</div>
+</div>

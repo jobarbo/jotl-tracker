@@ -1,0 +1,28 @@
+---
+export interface Props {
+	class?: string;
+	variant?: "default" | "hover" | "bordered";
+	padding?: "sm" | "md" | "lg";
+}
+
+const {class: className = "", variant = "default", padding = "md"} = Astro.props;
+
+const baseClasses = "bg-gray-800 rounded-lg border border-gray-700";
+const variantClasses = {
+	default: "",
+	hover: "hover:border-gray-600 transition-colors",
+	bordered: "border-2",
+};
+
+const paddingClasses = {
+	sm: "p-4",
+	md: "p-6",
+	lg: "p-8",
+};
+
+const classes = `${baseClasses} ${variantClasses[variant]} ${paddingClasses[padding]} ${className}`.trim();
+---
+
+<div class={classes}>
+	<slot />
+</div>
